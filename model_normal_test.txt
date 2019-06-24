@@ -1,0 +1,19 @@
+#data: prec_mu_c, HNscale_c, yh, nh, sigma
+
+model{
+  #hyperparameters
+  mu_c ~ dnorm(0,prec_mu_c)
+  #exchangeability
+  tau_c ~ dnorm(0,HNscale_c) I(0,)
+  prec_c <- tau_c^-2
+
+  #historical controls
+  for(i in 1:length(yh))
+  {
+    prec_yh[i] <- nh[i] / (sigma^2)
+    yh[i] ~ dnorm(theta_h[i],prec_yh[i])
+    theta_h[i] ~ dnorm(mu_c,prec_c)
+  }
+  
+}
+

@@ -33,13 +33,13 @@ jags_data = list(prec_mu_c = prec_mu_c, prec_mu_t = 1/10000,
                  )
 jags_obj = jags(model.file = "model_normal_HN.txt",
                 data = jags_data,
-                parameters.to.save = c("theta_t","theta_c"),
+                parameters.to.save = c("mu_t","mu_c"),
                 n.chains = n.chains, n.burnin = 2000, n.iter = 10000
                 )
 
 jags_auto = autojags(jags_obj,Rhat = 1.1,n.thin = 4,n.iter = 20000)
 postdt_jags = data.frame(jags_auto$BUGSoutput$sims.matrix)
-postdt_jags$post_diff = with(postdt_jags, theta_t - theta_c)
+postdt_jags$post_diff = with(postdt_jags, mu_t - mu_c)
 ##########################################################
 ##########################################################
 ##########################################################
@@ -61,8 +61,8 @@ post_c = postmix(map_hat, m=y_c, se=se_yc)
 postdt_c_rbest = rmix(mix = post_c,n = nrow(post_c))
 
 #Bhattacharyya distance
-bhatt.coeff(postdt_c_rbest,postdt_jags$theta_c)
+bhatt.coeff(postdt_c_rbest,postdt_jags$mu_c)
 
 
 summary(postdt_c_rbest)
-summary(postdt_jags$theta_c)
+summary(postdt_jags$mu_c)

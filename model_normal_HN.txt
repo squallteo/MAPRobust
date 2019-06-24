@@ -25,5 +25,5 @@ model{
     theta_h[i] ~ dnorm(mu_c,tau_c)
   }
   
-  es <- theta_t - theta_c
+  es <- mu_t - mu_c
 }
