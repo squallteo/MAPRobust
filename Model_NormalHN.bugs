@@ -1,24 +1,6 @@
 #data: prec_mu_c(t), HNscale_c(t), y_c(t), prec_yc(t), yh, prec_yh
 
 model{
-  #hyperparameters
-  mu_c ~ dnorm(0,prec_mu_c)
-  #exchangeability
-  prec_tau <- HNscale_c^-2
-  tau_c ~ dnorm(0,prec_tau) I(0,)
-  prec_c <- tau_c^-2
-
-  #historical controls
-  for(i in 1:length(yh))
-  {
-    epsilon[i] ~ dnorm(0,prec_c)
-    prec_yh[i] <- nh[i] / (sigma^2)
-    yh[i] ~ dnorm(theta_h[i],prec_yh[i])
-    theta_h[i] <- mu_c + epsilon[i]
-  }
-}
-
-model{
   #########
   #control#
   #########
@@ -32,44 +14,29 @@ model{
   
   #current control
   y_c ~ dnorm(theta_c,prec_yc)
-  theta_c ~ dnorm(mu_c,prec_c)
+  epsilon_c ~ dnorm(0,prec_c)
+  theta_c <- mu_c + epsilon_c
   
   
   #historical controls
   for(i in 1:length(yh))
   {
     yh[i] ~ dnorm(theta_h[i],prec_yh[i])
-    theta_h[i] ~ dnorm(mu_c,prec_c)
-    
-    epsilon[i] ~ dnorm(0,prec_c)
-    prec_yh[i] <- nh[i] / (sigma^2)
-    yh[i] ~ dnorm(theta_h[i],prec_yh[i])
-    theta_h[i] <- mu_c + epsilon[i]
-    
+    epsilon_h[i] ~ dnorm(0,prec_c)
+    theta_h[i] <- mu_c + epsilon_h[i]
   }
   
   ###########
   #treatment#
   ###########
-  #hyperparameters
   mu_t ~ dnorm(0,prec_mu_t)
-  #exchangeability
-  prec_tau_c = HNscale_c^-2
-  tau_c ~ dnorm(0,prec_tau_c) I(0,)
   
-  s_c ~ dnorm(0,HNscale_c) I(0,)
-  tau_c <- s_c^-2
-  s_t ~ dnorm(0,HNscale_t) I(0,)
-  tau_t <- s_t^-2
-  
-  #current control
-  y_c ~ dnorm(theta_c,prec_yc)
-  theta_c ~ dnorm(mu_c,tau_c)
+  prec_tau_t <- HNscale_t^-2
+  tau_t ~ dnorm(0,prec_tau_t) I(0,)
+  prec_t <- tau_t^-2
   
   #current treatment
   y_t ~ dnorm(theta_t,prec_yt)
-  theta_t ~ dnorm(mu_t,tau_t)
-
-  
-  es <- mu_t - mu_c
+  epsilon_t ~ dnorm(0,prec_t)
+  theta_t <- mu_t + epsilon_t
 }

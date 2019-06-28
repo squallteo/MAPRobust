@@ -1,4 +1,4 @@
-#data: prec_mu_c, HNscale_c, yh, nh, sigma
+#data: prec_mu_c, HNscale_c, yh, prec_yh
 
 model{
   #hyperparameters
@@ -12,7 +12,6 @@ model{
   for(i in 1:length(yh))
   {
     epsilon[i] ~ dnorm(0,prec_c)
-    prec_yh[i] <- nh[i] / (sigma^2)
     yh[i] ~ dnorm(theta_h[i],prec_yh[i])
     theta_h[i] <- mu_c + epsilon[i]
   }
