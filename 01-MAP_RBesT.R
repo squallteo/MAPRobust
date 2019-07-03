@@ -23,7 +23,6 @@ n_c = 20
 
 post_c = postmix(map_hat, m=y_c, se=se_yc)
 
-tt = rmix(mix = post_c,n = 10000)
 
 # p1 <- pmixdiff(post_act, post_pbo, 0); print(p1)
 # p2 <- pmixdiff(post_act, post_pbo, -50); print(p2)
@@ -32,7 +31,7 @@ tt = rmix(mix = post_c,n = 10000)
 # 
 # #robustification
 # ## add a 20% non-informative mixture component
-# map_robust <- robustify(map, weight=0.2, mean=-50)
+map_robust <- robustify(map_hat, weight=0.2, mean=-50)
 # 
 # #decision rules
 # ## dual decision criteria

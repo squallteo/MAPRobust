@@ -1,0 +1,37 @@
+#data: prec_mu_c(t), HNscale_t, y_c(t), prec_yc(t), yh, prec_yh, prec_c
+
+model{
+  #########
+  #control#
+  #########
+  #hyperparameters
+  mu_c ~ dnorm(0,prec_mu_c)
+  
+  #current control
+  y_c ~ dnorm(theta_c,prec_yc)
+  epsilon_c ~ dnorm(0,prec_c)
+  theta_c <- mu_c + epsilon_c
+  
+  
+  #historical controls
+  for(i in 1:length(yh))
+  {
+    yh[i] ~ dnorm(theta_h[i],prec_yh[i])
+    epsilon_h[i] ~ dnorm(0,prec_c)
+    theta_h[i] <- mu_c + epsilon_h[i]
+  }
+  
+  ###########
+  #treatment#
+  ###########
+  mu_t ~ dnorm(0,prec_mu_t)
+  
+  prec_tau_t <- HNscale_t^-2
+  tau_t ~ dnorm(0,prec_tau_t) I(0,)
+  prec_t <- tau_t^-2
+  
+  #current treatment
+  y_t ~ dnorm(theta_t,prec_yt)
+  epsilon_t ~ dnorm(0,prec_t)
+  theta_t <- mu_t + epsilon_t
+}
