@@ -1,7 +1,7 @@
 rm(list=ls())
 
 set.seed(712)
-# library(R2jags)
+library(R2jags)
 library(RBesT)
 library(ggplot2)
 library(doParallel)
@@ -17,18 +17,19 @@ errormat_rbest = powermat_rbest = matrix(NA,nrow = nsim, ncol = length(muvec_c))
 errormat_jags = powermat_jags = matrix(NA,nrow = nsim, ncol = length(muvec_c))
 
 for(m in 1:length(muvec_c)){
-  #simulate current control data
-  sample_c = rnorm(n_c, muvec_c[m], sigma)
-  y_c = mean(sample_c)
-  se_yc = sd(sample_c)/sqrt(n_c)
-  
-  #simulate current treatment data
-  sample_t = rnorm(n_t, muvec_c[m] + effsize, sigma)
-  y_t = mean(sample_t)
-  se_yt = sd(sample_t)/sqrt(n_t)
-  
+
   #parallel computing at this level
-  results_rbest = foreach(icount(nsim), .combine = rbind,.packages = "RBesT") %dopar% {
+  oc_rbest = foreach(icount(nsim), .combine = rbind,.packages = "RBesT") %dopar% {
+    #simulate current control data
+    sample_c = rnorm(n_c, muvec_c[m], sigma)
+    y_c = mean(sample_c)
+    se_yc = sd(sample_c)/sqrt(n_c)
+    
+    #simulate current treatment data
+    sample_t = rnorm(n_t, muvec_c[m] + effsize, sigma)
+    y_t = mean(sample_t)
+    se_yt = sd(sample_t)/sqrt(n_t)
+    
     options(RBesT.MC.control=list(adapt_delta=0.999))
     map_c_mcmc = gMAP(cbind(y, se_yh) ~ 1 | study, 
                       #weight = n,
@@ -57,11 +58,17 @@ for(m in 1:length(muvec_c)){
     # powermat_rbest[s,m] = design_rbest(muvec_c[m] + effsize,muvec_c[m])
   }
   
-  
-  
-    ##########################################################
-    ##########################################################
-    ##########################################################
+  power_jags = foreach(icount(100), .combine = c,.packages = "R2jags") %dopar% {
+    #simulate current control data
+    sample_c = rnorm(n_c, muvec_c[m], sigma)
+    y_c = mean(sample_c)
+    se_yc = sd(sample_c)/sqrt(n_c)
+    
+    #simulate current treatment data
+    sample_t = rnorm(n_t, muvec_c[m] + effsize, sigma)
+    y_t = mean(sample_t)
+    se_yt = sd(sample_t)/sqrt(n_t)
+    
     #original MAP model
     jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, y_c = y_c, prec_yc = se_yc^-2, yh = yh, prec_yh = se_yh^-2,
                              prec_mu_t = se_mu_t^-2, HNscale_t = HNscale_t, y_t = y_t, prec_yt = se_yt^-2)
@@ -72,12 +79,12 @@ for(m in 1:length(muvec_c)){
                     n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
                     progress.bar = "none"
     )
-
+    
     jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
     tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
     post_c_jags_b = tt$mu_c
     post_t_jags = tt$mu_t
-
+    
     #robust model with a fixed tau
     jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, prec_c = robust_sd^-2, y_c = y_c, prec_yc = se_yc^-2, yh = yh, prec_yh = se_yh^-2,
                              prec_mu_t = se_mu_t^-2, HNscale_t = HNscale_t, y_t = y_t, prec_yt = se_yt^-2)
@@ -88,16 +95,23 @@ for(m in 1:length(muvec_c)){
                     n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
                     progress.bar = "none"
     )
-
+    
     jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
     post_c_jags_nb = data.frame(jags_auto$BUGSoutput$sims.matrix)$mu_c
-
+    
     #model averaging
     post_c_jags = (1 - w_r) * post_c_jags_b + w_r * post_c_jags_nb
-
-
+    
     #posterior difference
-    post_diff_jags = post_c_jags - post_t_jags
+    post_diff_jags = post_t_jags - post_c_jags
+    
+    1*(mean(post_diff_jags > Qcut) > Pcut)
+  }
+  
+  
+  
+
+
   
   
 }
