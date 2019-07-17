@@ -1,7 +1,7 @@
 rm(list=ls())
 
 set.seed(712)
-library(R2jags)
+# library(R2jags)
 library(RBesT)
 library(ggplot2)
 library(doParallel)
@@ -28,8 +28,37 @@ for(m in 1:length(muvec_c)){
   se_yt = sd(sample_t)/sqrt(n_t)
   
   #parallel computing at this level
-  #initialization at the simulation level
-  for(s in 1:nsim){
+  results_rbest = foreach(icount(nsim), .combine = rbind,.packages = "RBesT") %dopar% {
+    options(RBesT.MC.control=list(adapt_delta=0.999))
+    map_c_mcmc = gMAP(cbind(y, se_yh) ~ 1 | study, 
+                      #weight = n,
+                      data=dt,
+                      family=gaussian,
+                      beta.prior=cbind(0, se_mu_c),
+                      tau.dist="HalfNormal",tau.prior=cbind(0,HNscale_c),
+                      chains = n.chains)
+    #approximate the MAP
+    map_c_hat = mixfit(map_c_mcmc, Nc = 3)
+    #robustify command needs a reference scale, although it won't be used
+    sigma(map_c_hat) = sigma
+    #robustification
+    rmap_c = robustify(map_c_hat, weight = w_r, mean = 0, sigma = robust_sd)
+    
+    #update with current control data
+    post_c_mix = postmix(rmap_c,m = y_c, se = se_yc)
+    
+    #calculate OCs
+    #non-informative priors for current treatment arm
+    prior_t = mixnorm(c(1,0,se_yt), sigma=sigma, param = 'mn')
+    design_rbest =   oc2S(prior1 = prior_t, prior2 = rmap_c, n1 = n_t, n2 = n_c, 
+                          decision = success_rule, sigma1 = sigma, sigma2 = sigma)
+    c(design_rbest(muvec_c[m],muvec_c[m]), design_rbest(muvec_c[m] + effsize,muvec_c[m]))
+    # errormat_rbest[s,m] = design_rbest(muvec_c[m],muvec_c[m])
+    # powermat_rbest[s,m] = design_rbest(muvec_c[m] + effsize,muvec_c[m])
+  }
+  
+  
+  
     ##########################################################
     ##########################################################
     ##########################################################
@@ -69,43 +98,6 @@ for(m in 1:length(muvec_c)){
     # 
     # #posterior difference
     # post_diff_jags = post_c_jags - post_t_jags
-    
-    
-    ##########################################################
-    ##########################################################
-    ##########################################################
-    options(RBesT.MC.control=list(adapt_delta=0.999))
-    map_c_mcmc = gMAP(cbind(y, se_yh) ~ 1 | study, 
-                      #weight = n,
-                      data=dt,
-                      family=gaussian,
-                      beta.prior=cbind(0, se_mu_c),
-                      tau.dist="HalfNormal",tau.prior=cbind(0,HNscale_c),
-                      chains = n.chains)
-    #approximate the MAP
-    map_c_hat = mixfit(map_c_mcmc, Nc = 3)
-    #robustify command needs a reference scale, although it won't be used
-    sigma(map_c_hat) = sigma
-    #robustification
-    rmap_c = robustify(map_c_hat, weight = w_r, mean = 0, sigma = robust_sd)
-    
-    #update with current control data
-    post_c_mix = postmix(rmap_c,m = y_c, se = se_yc)
-    
-    #calculate OCs
-    #non-informative priors for current treatment arm
-    prior_t = mixnorm(c(1,0,se_yt), sigma=sigma, param = 'mn')
-    design_rbest =   oc2S(prior1 = prior_t, prior2 = rmap_c, n1 = n_t, n2 = n_c, 
-                          decision = success_rule, sigma1 = sigma, sigma2 = sigma)
-    errormat_rbest[s,m] = design_rbest(muvec_c[m],muvec_c[m])
-    powermat_rbest[s,m] = design_rbest(muvec_c[m] + effsize,muvec_c[m])
-    
-    # tt1 = data.frame(Method = "JAGS",Sample = postdt_jags)
-    # tt2 = data.frame(Method = "RBesT",Sample = postdt_rbest)
-    # plotdt = rbind(tt1,tt2)
-    # p = ggplot(plotdt, aes(x=Sample, fill=Method)) + geom_density(alpha=.3)
-    # print(p)
-  }
   
   
 }
