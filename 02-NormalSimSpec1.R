@@ -11,7 +11,7 @@ nh = dt$n
 
 #current control data
 n_c = 20 #current control sample size
-muvec_c = seq(-60, -40, by=2) #current control mean vector
+muvec_c = seq(-60, -40, by=5) #current control mean vector
 
 #control arm hyper-parameters
 se_mu_c = 100
@@ -35,4 +35,4 @@ success_rule = decision2S(pc = Pcut, qc = Qcut, lower.tail = F, link = "identity
 
 #MCMC control parameters
 n.chains = 3
-nsim = 10
+nsim = 6
