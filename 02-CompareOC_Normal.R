@@ -63,41 +63,41 @@ for(m in 1:length(muvec_c)){
     ##########################################################
     ##########################################################
     #original MAP model
-    # jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, y_c = y_c, prec_yc = se_yc^-2, yh = yh, prec_yh = se_yh^-2, 
-    #                          prec_mu_t = se_mu_t^-2, HNscale_t = HNscale_t, y_t = y_t, prec_yt = se_yt^-2)
-    # )
-    # jags_obj = jags(model.file = "Model_NormalHN.bugs",
-    #                 data = jags_data,
-    #                 parameters.to.save = c("mu_c","mu_t"),
-    #                 n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
-    #                 progress.bar = "none"
-    # )
-    # 
-    # jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
-    # tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
-    # post_c_jags_b = tt$mu_c
-    # post_t_jags = tt$mu_t
-    # 
-    # #robust model with a fixed tau
-    # jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, prec_c = robust_sd^-2, y_c = y_c, prec_yc = se_yc^-2, yh = yh, prec_yh = se_yh^-2, 
-    #                          prec_mu_t = se_mu_t^-2, HNscale_t = HNscale_t, y_t = y_t, prec_yt = se_yt^-2)
-    # )
-    # jags_obj = jags(model.file = "Model_NormalFixedTau.bugs",
-    #                 data = jags_data,
-    #                 parameters.to.save = c("mu_c"),
-    #                 n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
-    #                 progress.bar = "none"
-    # )
-    # 
-    # jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
-    # post_c_jags_nb = data.frame(jags_auto$BUGSoutput$sims.matrix)$mu_c
-    # 
-    # #model averaging
-    # post_c_jags = (1 - w_r) * post_c_jags_b + w_r * post_c_jags_nb
-    # 
-    # 
-    # #posterior difference
-    # post_diff_jags = post_c_jags - post_t_jags
+    jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, y_c = y_c, prec_yc = se_yc^-2, yh = yh, prec_yh = se_yh^-2,
+                             prec_mu_t = se_mu_t^-2, HNscale_t = HNscale_t, y_t = y_t, prec_yt = se_yt^-2)
+    )
+    jags_obj = jags(model.file = "Model_NormalHN.bugs",
+                    data = jags_data,
+                    parameters.to.save = c("mu_c","mu_t"),
+                    n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
+                    progress.bar = "none"
+    )
+
+    jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
+    tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
+    post_c_jags_b = tt$mu_c
+    post_t_jags = tt$mu_t
+
+    #robust model with a fixed tau
+    jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, prec_c = robust_sd^-2, y_c = y_c, prec_yc = se_yc^-2, yh = yh, prec_yh = se_yh^-2,
+                             prec_mu_t = se_mu_t^-2, HNscale_t = HNscale_t, y_t = y_t, prec_yt = se_yt^-2)
+    )
+    jags_obj = jags(model.file = "Model_NormalFixedTau.bugs",
+                    data = jags_data,
+                    parameters.to.save = c("mu_c"),
+                    n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
+                    progress.bar = "none"
+    )
+
+    jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
+    post_c_jags_nb = data.frame(jags_auto$BUGSoutput$sims.matrix)$mu_c
+
+    #model averaging
+    post_c_jags = (1 - w_r) * post_c_jags_b + w_r * post_c_jags_nb
+
+
+    #posterior difference
+    post_diff_jags = post_c_jags - post_t_jags
   
   
 }
