@@ -24,14 +24,7 @@ model{
   ###########
   #treatment#
   ###########
-  mu_t ~ dnorm(0,prec_mu_t)
-  
-  prec_tau_t <- HNscale_t^-2
-  tau_t ~ dnorm(0,prec_tau_t) I(0,)
-  prec_t <- tau_t^-2
-  
   #current treatment
-  y_t ~ dnorm(theta_t,prec_yt)
-  epsilon_t ~ dnorm(0,prec_t)
-  theta_t <- mu_t + epsilon_t
+  y_t ~ dnorm(mu_t,prec_yt)
+  mu_t ~ dnorm(0, prec_mu_t)
 }
