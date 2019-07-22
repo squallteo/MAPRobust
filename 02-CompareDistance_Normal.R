@@ -7,7 +7,7 @@ library(ggplot2)
 source("00-BhattacharyyaDistance.R")
 source("02-NormalSimSpec1.R")
 
-nsim = 10
+nsim = 100
 ncores = detectCores()
 cl = makeCluster(ncores)
 registerDoParallel(cl)
@@ -111,4 +111,22 @@ for(m in 1:length(muvec_c)){
 stopCluster(cl)
 
 plotdt = subset(outdt,Type=="MSE")
-ggplot(data=plotdt,aes(x=CtrlMean,y=Val,color=Method)) + geom_line()
+ggplot(data=plotdt,aes(x=TrueCtrlMean,y=Val,color=Method)) + geom_line(size = 1.5) + 
+  scale_x_continuous(breaks = muvec_c, name = "True Control Mean") + 
+  ylab("Mean Square Error") + geom_vline(xintercept = -49.9, linetype=2, size=1) + 
+  theme(axis.title = element_text(face="bold",size=15),
+        axis.text = element_text(size=12),
+        legend.title=element_text(size=15,face="bold"),
+        legend.text=element_text(size=12)
+        )
+
+plotdt = subset(outdt,Type=="Distance")
+ggplot(data=plotdt,aes(x=TrueCtrlMean,y=Val)) + geom_line(size = 1.5) + 
+  scale_x_continuous(breaks = muvec_c, name = "True Control Mean") + 
+  scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.1), name = "Bhattacharyya Coefficient") + 
+  geom_hline(yintercept = 0.9, linetype=2, size=1) + 
+  theme(axis.title = element_text(face="bold",size=15),
+        axis.text = element_text(size=12),
+        legend.title=element_text(size=15,face="bold"),
+        legend.text=element_text(size=12)
+  )
