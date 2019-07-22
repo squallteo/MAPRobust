@@ -71,7 +71,7 @@ for(m in 1:length(muvec_c)){
     
     #original MAP model
     jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, y_c = y_c, prec_yc = se_yc^-2, yh = yh, prec_yh = se_yh^-2,
-                             prec_mu_t = se_mu_t^-2, HNscale_t = HNscale_t, y_t = y_t, prec_yt = se_yt^-2)
+                             prec_mu_t = se_mu_t^-2, y_t = y_t, prec_yt = se_yt^-2)
     )
     jags_obj = jags(model.file = "Model_NormalHN.bugs",
                     data = jags_data,

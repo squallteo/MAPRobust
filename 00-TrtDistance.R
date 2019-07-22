@@ -48,6 +48,8 @@ foreach(icount(100), .combine = rbind,.packages = c("RBesT","R2jags")) %dopar% {
   c(var(post_t_rbest), var(post_t_jags), bhatt.coeff(post_t_rbest,post_t_jags))
 }
 
+colMeans(result)
+
 
 
 
