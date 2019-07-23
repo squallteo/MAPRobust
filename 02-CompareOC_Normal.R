@@ -8,6 +8,7 @@ library(doParallel)
 source("00-BhattacharyyaDistance.R")
 source("02-NormalSimSpec1.R")
 
+nsim = 10
 ncores = parallel::detectCores()
 cl = makeCluster(ncores)
 registerDoParallel(cl)

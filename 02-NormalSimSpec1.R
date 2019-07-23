@@ -24,13 +24,13 @@ robust_sd = 200
 #current treatment data/parameters
 se_mu_t = 100
 n_t = 40
-effsize = 15
+effsize = -15
 
 #decision rule to claim trial success
-#pr(mu_t - mu_c > Qcut) > Pcut
+#pr(mu_t - mu_c < Qcut) > Pcut
 Qcut = 0
 Pcut = 0.975
-success_rule = decision2S(pc = Pcut, qc = Qcut, lower.tail = F, link = "identity")
+success_rule = decision2S(pc = Pcut, qc = Qcut, lower.tail = T, link = "identity")
 
 #MCMC control parameters
 n.chains = 3
