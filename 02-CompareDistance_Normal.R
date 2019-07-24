@@ -7,11 +7,27 @@ library(ggplot2)
 source("00-BhattacharyyaDistance.R")
 source("02-NormalSimSpec1.R")
 
-nsim = 100
+nsim = 500
 ncores = detectCores()
 cl = makeCluster(ncores)
 registerDoParallel(cl)
 
+
+
+options(RBesT.MC.control=list(adapt_delta=0.999))
+map_c_mcmc = gMAP(cbind(y, se_yh) ~ 1 | study, 
+                  #weight = n,
+                  data=dt,
+                  family=gaussian,
+                  beta.prior=cbind(0, se_mu_c),
+                  tau.dist="HalfNormal",tau.prior=cbind(0,HNscale_c),
+                  chains = n.chains)
+#approximate the MAP
+map_c_hat = mixfit(map_c_mcmc, Nc = 3)
+#robustify command needs a reference scale, although it won't be used
+sigma(map_c_hat) = sigma
+#robustification
+rmap_c = robustify(map_c_hat, weight = w_r, mean = 0, sigma = robust_sd)
 
 for(m in 1:length(muvec_c)){
 
@@ -60,21 +76,6 @@ for(m in 1:length(muvec_c)){
     ##########################################################
     ##########################################################
     ##########################################################
-    options(RBesT.MC.control=list(adapt_delta=0.999))
-    map_c_mcmc = gMAP(cbind(y, se_yh) ~ 1 | study, 
-                      #weight = n,
-                      data=dt,
-                      family=gaussian,
-                      beta.prior=cbind(0, se_mu_c),
-                      tau.dist="HalfNormal",tau.prior=cbind(0,HNscale_c),
-                      chains = n.chains)
-    #approximate the MAP
-    map_c_hat = mixfit(map_c_mcmc, Nc = 3)
-    #robustify command needs a reference scale, although it won't be used
-    sigma(map_c_hat) = sigma
-    #robustification
-    rmap_c = robustify(map_c_hat, weight = w_r, mean = 0, sigma = robust_sd)
-    
     #update with current control data
     post_c_mix = postmix(rmap_c,m = y_c, se = se_yc)
     post_c_rbest = rmix(mix = post_c_mix,n = length(post_c_jags))
@@ -130,3 +131,15 @@ ggplot(data=plotdt,aes(x=TrueCtrlMean,y=Val)) + geom_line(size = 1.5) +
         legend.title=element_text(size=15,face="bold"),
         legend.text=element_text(size=12)
   )
+
+plotdt = subset(outdt,Type=="BiasProp")
+ggplot(data=plotdt,aes(x=TrueCtrlMean,y=1-Val,color=Method)) + geom_line(size = 1.5) + 
+  scale_x_continuous(breaks = muvec_c, name = "True Control Mean") + 
+  scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.1), name = "Proportion of Variance in MSE") + 
+  geom_vline(xintercept = -49.9, linetype=2, size=1) + 
+  theme(axis.title = element_text(face="bold",size=15),
+        axis.text = element_text(size=12),
+        legend.title=element_text(size=15,face="bold"),
+        legend.text=element_text(size=12)
+  )
+                                     

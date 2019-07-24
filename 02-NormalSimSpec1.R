@@ -11,7 +11,7 @@ nh = dt$n
 
 #current control data
 n_c = 20 #current control sample size
-muvec_c = seq(-60, -40, by=2) #current control mean vector
+muvec_c = seq(-60, -40, by=1) #current control mean vector
 
 #control arm hyper-parameters
 se_mu_c = 100
@@ -24,7 +24,7 @@ robust_sd = 200
 #current treatment data/parameters
 se_mu_t = 100
 n_t = 40
-effsize = -40
+effsize = -20
 
 #decision rule to claim trial success
 #pr(mu_t - mu_c < Qcut) > Pcut
