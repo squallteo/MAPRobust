@@ -45,6 +45,7 @@ for(s in 1:nsim){
                    data=dt,
                    family=gaussian,
                    beta.prior=cbind(0, sqrt(1/prec_mu_c)),
+                   prior_PD = F,
                    tau.dist="HalfNormal",tau.prior=cbind(0,HNscale_c),
                    chains = n.chains)
   
