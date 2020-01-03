@@ -24,7 +24,7 @@ robust_sd = 200
 #current treatment data/parameters
 se_mu_t = 100
 n_t = 40
-effsize = -20
+effsize = 0
 
 #decision rule to claim trial success
 #pr(mu_t - mu_c < Qcut) > Pcut
