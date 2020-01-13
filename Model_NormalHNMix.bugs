@@ -1,4 +1,4 @@
-#data: prec_mu_c(t), HNscale_c(t), y_c(t), prec_yc(t), yh, prec_yh
+#data: prec_mu_c(t), HNscale_c, w_v, y_c(t), prec_yc(t), yh, prec_yh
 
 model{
   #########
@@ -15,7 +15,7 @@ model{
   #current control
   y_c ~ dnorm(theta_c,prec_yc)
   
-  nb ~ dbern(w_r)
+  nb ~ dbern(w_v)
   prec_c_mix <- (1 - nb)*prec_c + nb*robust_sd^-2
   epsilon_c ~ dnorm(0,prec_c_mix)
   theta_c <- mu_c + epsilon_c

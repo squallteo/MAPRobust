@@ -18,13 +18,13 @@ se_mu_c = 100
 HNscale_c = 44
 
 #robustification parameter: the weight associated with the robust part
-w_r = 0.2
+w_v = 0.2
 robust_sd = 200
 
 #current treatment data/parameters
 se_mu_t = 100
 n_t = 40
-effsize = 0
+effsize = -20
 
 #decision rule to claim trial success
 #pr(mu_t - mu_c < Qcut) > Pcut
