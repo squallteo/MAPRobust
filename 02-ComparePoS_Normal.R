@@ -7,8 +7,8 @@ library(doParallel)
 source("00-BhattacharyyaDistance.R")
 source("02-NormalSimSpec1.R")
 
-nsim = 5000
-ncores = parallel::detectCores()
+nsim = 1000
+ncores = min(parallel::detectCores(), 40)
 cl = makeCluster(ncores)
 registerDoParallel(cl)
 
@@ -66,12 +66,38 @@ for(m in 1:length(muvec_c)){
       )
       jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
       tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
+      post_c_mac = tt$mu_c
+      post_t_mac = tt$mu_t
+      
+      #posterior difference
+      post_diff_mac = post_t_mac - post_c_mac
+      decision_mac = (mean(post_diff_mac <= Qcut) > Pcut)      
+
+      #############################
+      #mixture prior full Bayesian#
+      #############################
+      jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, y_c = y_c, prec_yc = se_yc^-2, 
+                               yh = yh, prec_yh = se_yh^-2,
+                               prec_mu_t = se_mu_t^-2,                        
+                               y_t = y_t, prec_yt = se_yt^-2, robust_sd = robust_sd,
+                               beta_a = w_v, beta_b = 1 - w_v)
+      )
+      jags_obj = jags(model.file = "Model_NormalHNMix_FB.bugs",
+                      data = jags_data,
+                      parameters.to.save = c("mu_c","mu_t"),
+                      n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
+                      progress.bar = "none"
+      )
+      jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
+      tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
       post_c_fb = tt$mu_c
       post_t_fb = tt$mu_t
       
       #posterior difference
       post_diff_fb = post_t_fb - post_c_fb
       decision_fb = (mean(post_diff_fb <= Qcut) > Pcut)      
+      
+      
       ######################
       #Robust mixture prior#
       ######################
@@ -112,7 +138,9 @@ for(m in 1:length(muvec_c)){
       post_c_rmix_nb = data.frame(jags_auto$BUGSoutput$sims.matrix)$mu_c
       
       #model averaging
-      post_c_rmix = (1 - w_v) * post_c_rmix_b + w_v * post_c_rmix_nb
+      nb <- rbinom(length(post_diff_fb),1,w_v)
+      post_c_rmix <- (1 - nb) * post_c_rmix_b + nb * post_c_rmix_nb
+      # post_c_rmix = (1 - w_v) * post_c_rmix_b + w_v * post_c_rmix_nb
       
       #posterior difference
       post_diff_rmix = post_t_rmix - post_c_rmix
@@ -132,10 +160,10 @@ for(m in 1:length(muvec_c)){
       decision_rmap = (mean(post_diff_rmap <= Qcut) > Pcut)
       
       
-      c(decision_rmix,decision_fb,decision_rmap)
+      c(decision_mac, decision_rmix, decision_fb, decision_rmap)
     }
   
-  ttt = data.frame(Prop = colMeans(results), Method = c("rMix", "FullMAC", "rMAP"), TrueCtrlMean = muvec_c[m])
+  ttt = data.frame(Prop = colMeans(results), Method = c("MAC","rMix", "FullBayes", "rMAP"), TrueCtrlMean = muvec_c[m])
   if(m==1) outdt = ttt else outdt = rbind(outdt,ttt)
   
 }

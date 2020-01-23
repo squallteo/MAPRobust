@@ -13,6 +13,7 @@ model{
   #current control
   y_c ~ dnorm(theta_c,prec_yc)
   
+  w_v ~ dbeta(beta_a,beta_b)
   nb ~ dbern(w_v)
   branch[1] ~ dnorm(mu_c, prec_c) #branch 1: borrowing
   branch[2] ~ dnorm(0, robust_sd^-2) #branch 2: no borrowing
