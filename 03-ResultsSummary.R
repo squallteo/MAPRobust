@@ -1,22 +1,98 @@
+rm(list=ls())
 
+library(ggplot2)
+library(RBesT)
+library(tidyverse)
+source("00-BhattacharyyaDistance.R")
+#source("02-NormalSimSpec0.R") #effect size 0
+source("02-NormalSimSpec1.R") #effect size -20
 
-decision = results[,1:4]
-median_est = results[,5:8]
-w_post = results[,9]
+mu_c_tab = seq(-60, -40, by=5)
 
+for(w in 1:length(w_vec)){
+  w_v <- w_vec[w]
+  rdname <- paste("Results/Normal/es_",effsize,"_wv_",w_v,".RData",sep="")
+  load(rdname)
+  
+  for(m in 1:length(muvec_c)){
+    results = results_lst[[m]]
+    
+    tt1 <- tibble(TrueCtrlMean = muvec_c[m], Prop = colMeans(results[,1:4]), Method = c("rMAP","Alt1", "Alt2", "Alt3"))
+    tt2 <- as_tibble(results[,5:8]) %>% mutate(TrueCtrlMean = muvec_c[m])
+    tt3 <- tibble(results[,9], TrueCtrlMean = muvec_c[m])
+    
+    if(m==1){
+      decision <- tt1
+      median_est <- tt2
+      w_post <- tt3
+    }
+    else{
+      decision <- rbind(decision, tt1)
+      median_est <- rbind(median_est, tt2)
+      w_post <- rbind(w_post, tt3)
+    }
+  }
+  
+  names(median_est) <- c("rMAP","Alt1", "Alt2", "Alt3", "TrueCtrlMean")
+  names(w_post) <- c("wPost", "TrueCtrlMean")
+  
+  w_summary <-
+    w_post %>% group_by(TrueCtrlMean) %>% 
+    summarize(mean = mean(wPost), stddev = sd(wPost), min = min(wPost), 
+              q1 = quantile(wPost, 0.25), median = median(wPost),  q3 = quantile(wPost, 0.75), max = max(wPost))
+  
+  est_summary <-
+    median_est %>% group_by(TrueCtrlMean) %>% 
+    summarize_all(list(mean=mean, sd=sd, median=median)) %>%
+    mutate(rMAP_MSE = (rMAP_mean - TrueCtrlMean)^2 + rMAP_sd^2,
+           Alt1_MSE = (Alt1_mean - TrueCtrlMean)^2 + Alt1_sd^2,
+           Alt2_MSE = (Alt2_mean - TrueCtrlMean)^2 + Alt2_sd^2,
+           Alt3_MSE = (Alt3_mean - TrueCtrlMean)^2 + Alt3_sd^2)
+  
+  
+  #assemble results
+  for(t in 1:length(mu_c_tab)){
+    part1 <- decision %>% filter(Method %in% c("rMAP", "Alt1", "Alt2") & TrueCtrlMean == mu_c_tab[t]) %>% select(Prop)
+    part1 <- round(part1, 3)
+    
+    tt1 <- median_est %>% select(-"Alt3") %>% group_by(TrueCtrlMean) %>% 
+      summarize_all(list(mean=mean, sd=sd)) %>%
+      mutate(rMAP_MSE = (rMAP_mean - TrueCtrlMean)^2 + rMAP_sd^2,
+             Alt1_MSE = (Alt1_mean - TrueCtrlMean)^2 + Alt1_sd^2,
+             Alt2_MSE = (Alt2_mean - TrueCtrlMean)^2 + Alt2_sd^2) %>%
+      filter(TrueCtrlMean == mu_c_tab[t])
+    part2 <- cbind(t(tt1[,c("rMAP_mean", "Alt1_mean", "Alt2_mean")]),
+                   t(tt1[,c("rMAP_MSE", "Alt1_MSE", "Alt2_MSE")])
+    )
+    part2 <- round(part2,1)
+    tt2 <- cbind(part1, part2)
+    
+    if(t==1)  out <- tt2 else out <- cbind(out, tt2)
+  }
+  
+  ttt <- data.frame(w_v, Method = c("rMAP","Alt1", "Alt2"), out)
+  rownames(ttt) <- NULL
+  
+  if(w==1) outdt <- ttt else outdt <- rbind(outdt, ttt)
+  
+}
 
-tt1 <- data.frame(TrueCtrlMean = muvec_c[m], Prop = colMeans(decision), Method = c("rMAP","Alt1", "Alt2", "Alt3"))
-tt2 <- data.frame(TrueCtrlMean = muvec_c[m], Prop = colMeans(decision), Method = c("rMAP","Alt1", "Alt2", "Alt3"))
+paste("Output to CSV? y/n")
 
+if(csv=="y") 
+  write.csv(outdt,"out.csv")
 
-if(m==1) outdt_decision = ttt else outdt_decision = rbind(outdt_decision,ttt)
-
+#plots
+# w_post %>% ggplot(aes(x=TrueCtrlMean, y=wPost, group=TrueCtrlMean)) + geom_boxplot()
+# 
+# median_est %>% ggplot(aes(x=TrueCtrlMean, y=Alt3, group=TrueCtrlMean)) + geom_boxplot()
 # 
 # if(effsize != 0){
-#   ggplot(data=outdt,aes(x=TrueCtrlMean,y=Prop,color=Method)) + geom_line(size = 1.5) + 
-#     scale_x_continuous(breaks = muvec_c, name = "True Control Mean") + 
-#     scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.1), name = "Probability of Success") + 
-#     geom_vline(xintercept = -49.9, linetype=2, size=1) + 
+#   decision %>% filter(Method != "Alt3") %>%
+#   ggplot(aes(x=TrueCtrlMean,y=Prop,color=Method)) + geom_line(size = 1.5) +
+#     scale_x_continuous(breaks = muvec_c, name = "True Control Mean") +
+#     scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.1), name = "Probability of Success") +
+#     geom_vline(xintercept = -49.9, linetype=2, size=1) +
 #     theme(axis.title = element_text(face="bold",size=15),
 #           axis.text = element_text(size=12),
 #           legend.title=element_text(size=15,face="bold"),
@@ -25,11 +101,12 @@ if(m==1) outdt_decision = ttt else outdt_decision = rbind(outdt_decision,ttt)
 # }
 # 
 # if(effsize == 0){
-#   ggplot(data=outdt,aes(x=TrueCtrlMean,y=Prop,color=Method)) + geom_line(size = 1.5) + 
-#     scale_x_continuous(breaks = muvec_c, name = "True Control Mean") + 
-#     scale_y_continuous(limits = c(0,0.2), breaks = seq(0,0.2,0.01), name = "Probability of Success") + 
-#     geom_vline(xintercept = -49.9, linetype=2, size=1) + 
-#     geom_hline(yintercept = 0.025, linetype=2, size=1) + 
+#   decision %>% filter(Method != "Alt3") %>%
+#   ggplot(aes(x=TrueCtrlMean,y=Prop,color=Method)) + geom_line(size = 1.5) +
+#     scale_x_continuous(breaks = muvec_c, name = "True Control Mean") +
+#     scale_y_continuous(limits = c(0,0.2), breaks = seq(0,0.2,0.01), name = "Probability of Success") +
+#     geom_vline(xintercept = -49.9, linetype=2, size=1) +
+#     geom_hline(yintercept = 0.025, linetype=2, size=1) +
 #     theme(axis.title = element_text(face="bold",size=15),
 #           axis.text = element_text(size=12),
 #           legend.title=element_text(size=15,face="bold"),
