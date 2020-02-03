@@ -4,8 +4,8 @@ library(ggplot2)
 library(RBesT)
 library(tidyverse)
 source("00-BhattacharyyaDistance.R")
-#source("02-NormalSimSpec0.R") #effect size 0
-source("02-NormalSimSpec1.R") #effect size -20
+source("02-NormalSimSpec0.R") #effect size 0
+# source("02-NormalSimSpec1.R") #effect size -20
 
 mu_c_tab = seq(-60, -40, by=5)
 
@@ -77,10 +77,8 @@ for(w in 1:length(w_vec)){
   
 }
 
-paste("Output to CSV? y/n")
 
-if(csv=="y") 
-  write.csv(outdt,"out.csv")
+# write.csv(outdt,"out.csv")
 
 #plots
 # w_post %>% ggplot(aes(x=TrueCtrlMean, y=wPost, group=TrueCtrlMean)) + geom_boxplot()
