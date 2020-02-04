@@ -1,0 +1,39 @@
+model{
+  #########
+  #control#
+  #########
+  #hyperparameters
+  mu_c ~ dnorm(0,prec_mu_c)
+  
+  #exchangeability
+  prec_tau_c <- HNscale_c^-2
+  tau_c ~ dnorm(0,prec_tau_c) I(0,)
+  prec_c <- tau_c^-2
+  
+  #historical controls
+  for(i in 1:length(y_h))
+  {
+    y_h[i] ~ dbin(p_h[i], n_h[i])
+    p_h[i] <- ilogit(logit_p_h[i])
+    logit_p_h[i] ~ dnorm(mu_c, prec_c)
+  }
+  
+  #current control
+  y_c ~ dbinom(p_c, n_c)
+  p_c <- ilogit(logit_p_c)
+  
+  w_v ~ dbeta(beta_a,beta_b)
+  nb ~ dbern(w_v)
+  branch[1] ~ dnorm(mu_c, prec_c) #branch 1: borrowing
+  branch[2] ~ dnorm(0, robust_sd^-2) #branch 2: no borrowing
+  if.branch <- equals(nb,1) + 1
+  logit_p_c <- branch[if.branch]
+  
+  ###########
+  #treatment#
+  ###########
+  #current treatment
+  y_t ~ dbin(p_t,n_t)
+  p_t <- ilogit(logit_p_t)
+  logit_p_t ~ dnorm(0, prec_t)
+}

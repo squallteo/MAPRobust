@@ -4,8 +4,8 @@ library(ggplot2)
 library(RBesT)
 library(tidyverse)
 source("00-BhattacharyyaDistance.R")
-source("02-NormalSimSpec0.R") #effect size 0
-# source("02-NormalSimSpec1.R") #effect size -20
+# source("02-NormalSimSpec0.R") #effect size 0
+source("02-NormalSimSpec1.R") #effect size -20
 
 mu_c_tab = seq(-60, -40, by=5)
 
@@ -80,34 +80,3 @@ for(w in 1:length(w_vec)){
 
 # write.csv(outdt,"out.csv")
 
-#plots
-# w_post %>% ggplot(aes(x=TrueCtrlMean, y=wPost, group=TrueCtrlMean)) + geom_boxplot()
-# 
-# median_est %>% ggplot(aes(x=TrueCtrlMean, y=Alt3, group=TrueCtrlMean)) + geom_boxplot()
-# 
-# if(effsize != 0){
-#   decision %>% filter(Method != "Alt3") %>%
-#   ggplot(aes(x=TrueCtrlMean,y=Prop,color=Method)) + geom_line(size = 1.5) +
-#     scale_x_continuous(breaks = muvec_c, name = "True Control Mean") +
-#     scale_y_continuous(limits = c(0,1), breaks = seq(0,1,0.1), name = "Probability of Success") +
-#     geom_vline(xintercept = -49.9, linetype=2, size=1) +
-#     theme(axis.title = element_text(face="bold",size=15),
-#           axis.text = element_text(size=12),
-#           legend.title=element_text(size=15,face="bold"),
-#           legend.text=element_text(size=12)
-#     )
-# }
-# 
-# if(effsize == 0){
-#   decision %>% filter(Method != "Alt3") %>%
-#   ggplot(aes(x=TrueCtrlMean,y=Prop,color=Method)) + geom_line(size = 1.5) +
-#     scale_x_continuous(breaks = muvec_c, name = "True Control Mean") +
-#     scale_y_continuous(limits = c(0,0.2), breaks = seq(0,0.2,0.01), name = "Probability of Success") +
-#     geom_vline(xintercept = -49.9, linetype=2, size=1) +
-#     geom_hline(yintercept = 0.025, linetype=2, size=1) +
-#     theme(axis.title = element_text(face="bold",size=15),
-#           axis.text = element_text(size=12),
-#           legend.title=element_text(size=15,face="bold"),
-#           legend.text=element_text(size=12)
-#     )
-# }
