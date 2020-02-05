@@ -8,7 +8,7 @@ source("00-BhattacharyyaDistance.R")
 #source("02-BinarySimSpec0.R") #effect size 0
 source("02-BinarySimSpec1.R") #effect size 0.2
 
-nsim = 10
+nsim = 500
 ncores = min(parallel::detectCores(), 40)
 cl = makeCluster(ncores)
 registerDoParallel(cl)
@@ -130,27 +130,30 @@ for(w in 1:length(w_vec)){
         ###########################
         #Alternative 3: full Bayes#
         ###########################
-        jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, 
-                                 y_c = y_c, n_c = n_c,
-                                 y_h = dt$r, n_h = dt$n,
-                                 y_t = y_t, n_t = n_t, prec_t = se_mu_t^-2, 
-                                 w_v = w_v, robust_sd = robust_sd,
-                                 beta_a = w_v, beta_b = 1 - w_v)
-        )
-        jags_obj = jags(model.file = "Model_BinaryHNMix_FB.bugs",
-                        data = jags_data,
-                        parameters.to.save = c("p_c","p_t"),
-                        n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
-                        progress.bar = "none"
-        )
-        jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
-        tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
-        post_c_alt3 = tt$p_c
-        post_t_alt3 = tt$p_t
+        # jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, 
+        #                          y_c = y_c, n_c = n_c,
+        #                          y_h = dt$r, n_h = dt$n,
+        #                          y_t = y_t, n_t = n_t, prec_t = se_mu_t^-2, 
+        #                          w_v = w_v, robust_sd = robust_sd,
+        #                          beta_a = w_v, beta_b = 1 - w_v)
+        # )
+        # jags_obj = jags(model.file = "Model_BinaryHNMix_FB.bugs",
+        #                 data = jags_data,
+        #                 parameters.to.save = c("p_c","p_t"),
+        #                 n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
+        #                 progress.bar = "none"
+        # )
+        # jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
+        # tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
+        # post_c_alt3 = tt$p_c
+        # post_t_alt3 = tt$p_t
+        # 
+        # #posterior difference
+        # post_diff_alt3 = post_t_alt3 - post_c_alt3
+        # decision_alt3 = (mean(post_diff_alt3 > Qcut) > Pcut)      
         
-        #posterior difference
-        post_diff_alt3 = post_t_alt3 - post_c_alt3
-        decision_alt3 = (mean(post_diff_alt3 > Qcut) > Pcut)      
+        post_c_alt3 = 1
+        decision_alt3 = 0
         
         
         ##############
