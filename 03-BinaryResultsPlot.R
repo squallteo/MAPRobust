@@ -3,11 +3,12 @@ rm(list=ls())
 library(ggplot2)
 library(RBesT)
 library(tidyverse)
-# source("02-NormalSimSpec0.R") #effect size 0
-source("02-NormalSimSpec1.R") #effect size -20
+# source("02-BinarySimSpec0.R") #effect size 0
+source("02-BinarySimSpec1.R") #effect size -20
 
-w_v <- 0.5
-rdname <- paste("Results/Normal/es_",effsize,"_wv_",w_v,".RData",sep="")
+w_v <- 0.8
+# rdname <- paste("Results/Normal/es_",effsize,"_wv_",w_v,".RData",sep="")
+rdname <- paste("es_",effsize,"_wv_",w_v,".RData",sep="")
 load(rdname)
 
 for(m in 1:length(muvec_c)){
@@ -29,6 +30,7 @@ for(m in 1:length(muvec_c)){
   }
 }
 
+names(median_est) <- c("rMAP","Alt1", "Alt2", "Alt3", "TrueCtrlMean")
 names(w_post) <- c("wPost", "TrueCtrlMean")
 
 w_post %>% 
@@ -38,7 +40,12 @@ w_post %>%
   geom_hline(yintercept = w_v, linetype=2, color = "red", size=1)
   
 # 
-# median_est %>% ggplot(aes(x=TrueCtrlMean, y=Alt3, group=TrueCtrlMean)) + geom_boxplot()
+median_est %>% ggplot(aes(x=TrueCtrlMean, y=Alt3, group=TrueCtrlMean)) + geom_boxplot()
+
+quantile(median_est$rMAP, c(0.05, 0.15, 0.25, 0.5, 0.75, 0.85, 0.95))
+quantile(median_est$Alt1, c(0.05, 0.15, 0.25, 0.5, 0.75, 0.85, 0.95))
+quantile(median_est$Alt2, c(0.05, 0.15, 0.25, 0.5, 0.75, 0.85, 0.95))
+
 # 
 # if(effsize != 0){
 #   decision %>% filter(Method != "Alt3") %>%

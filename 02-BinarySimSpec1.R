@@ -7,7 +7,8 @@ dt = AS
 
 #current control data
 n_c = 20 #current control sample size
-muvec_c = seq(0.2, 0.32, by=0.01) #current control mean vector
+# muvec_c = seq(0.2, 0.32, by=0.02) #current control mean vector
+muvec_c = c(0.20, 0.22, 0.25, 0.28, 0.32)
 
 #control arm hyper-parameters
 se_mu_c = 2
@@ -15,12 +16,12 @@ HNscale_c = 0.5
 
 #robustification parameter: the weight associated with the robust part
 w_vec = c(0.2, 0.5, 0.8)
-a_c = 1; b_c = 1 #vague beta prior for p(c), rMAP only
+a_c = 0.5; b_c = 0.5 #vague beta prior for p(c), rMAP only
 robust_sd = 2 #vague normal prior sd of logit p(c), alternatives only
 
 #current treatment data/parameters
 se_mu_t = 2 #sd of logit p(t), alternatives only
-a_t = 1; b_t = 1 #beta prior for p(t), rMAP only
+a_t = 0.5; b_t = 0.5 #beta prior for p(t), rMAP only
 n_t = 40
 effsize = 0.2
 
