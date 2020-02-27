@@ -4,14 +4,14 @@ library(ggplot2)
 library(RBesT)
 library(tidyverse)
 source("00-BhattacharyyaDistance.R")
-# source("02-BinarySimSpec0.R") #effect size 0
-source("02-BinarySimSpec1.R") #effect size -20
+source("02-BinarySimSpec0.R") #effect size 0
+# source("02-BinarySimSpec1.R") #effect size -20
 
 mu_c_tab = c(0.20, 0.22, 0.25, 0.28, 0.32)
 
 for(w in 1:length(w_vec)){
   w_v <- w_vec[w]
-  rdname <- paste("es_",effsize,"_wv_",w_v,".RData",sep="")
+  rdname <- paste("Results/Binary/es_",effsize,"_wv_",w_v,".RData",sep="")
   load(rdname)
   
   for(m in 1:length(muvec_c)){
