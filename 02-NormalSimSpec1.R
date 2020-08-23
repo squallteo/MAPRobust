@@ -19,7 +19,8 @@ HNscale_c = 44
 
 #robustification parameter: the weight associated with the robust part
 w_vec = c(0.2, 0.5, 0.8)
-robust_sd = 200
+robust_mean = -50
+robust_sd = 88
 
 #current treatment data/parameters
 se_mu_t = 100
