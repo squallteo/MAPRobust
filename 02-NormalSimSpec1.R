@@ -11,7 +11,7 @@ nh = dt$n
 
 #current control data
 n_c = 20 #current control sample size
-muvec_c = seq(-60, -40, by=1) #current control mean vector
+muvec_c = seq(-60, -40, by=2) #current control mean vector
 
 #control arm hyper-parameters
 se_mu_c = 100
