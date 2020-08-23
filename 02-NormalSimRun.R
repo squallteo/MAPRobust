@@ -7,7 +7,7 @@ library(doParallel)
 #source("02-NormalSimSpec0.R") #effect size 0
 source("02-NormalSimSpec1.R") #effect size -20
 
-nsim = 100
+nsim = 5000
 ncores = min(parallel::detectCores(), 40)
 cl = makeCluster(ncores)
 registerDoParallel(cl)
