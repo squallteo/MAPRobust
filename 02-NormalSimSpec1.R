@@ -11,7 +11,7 @@ nh = dt$n
 
 #current control data
 n_c = 20 #current control sample size
-muvec_c = seq(-60, -40, by=2) #current control mean vector
+muvec_c = seq(-60, -40, by=2.5) #current control mean vector
 
 #control arm hyper-parameters
 se_mu_c = 100
@@ -25,7 +25,7 @@ robust_sd = 88
 #current treatment data/parameters
 se_mu_t = 100
 n_t = 40
-effsize = -20
+effsize = -70
 
 #decision rule to claim trial success
 #pr(mu_t - mu_c < Qcut) > Pcut
@@ -35,3 +35,25 @@ success_rule = decision2S(pc = Pcut, qc = Qcut, lower.tail = T, link = "identity
 
 #MCMC control parameters
 n.chains = 3
+
+
+#simulation to compute PoS for frequentist no borrowing
+#comment out in simulation
+# nsim = 10000
+# 
+# mean_c <- -50
+# mean_t <- mean_c + effsize
+# common_sd <- 88
+# 
+# rej <- rep(NA, nsim)
+# 
+# for(s in 1:nsim){
+#   s_c <- rnorm(n_c, mean_c, common_sd)
+#   s_t <- rnorm(n_t, mean_t, common_sd)
+#   
+#   tt <- t.test(s_t, s_c, alternative = "less", conf.level = 0.975)
+#   rej[s] <- (tt$p.value < 0.025)
+# }
+# 
+# 
+# mean(rej)
