@@ -6,7 +6,7 @@ library(tidyverse)
 # source("02-NormalSimSpec0.R") #effect size 0
 source("02-NormalSimSpec1.R") #effect size -20
 
-mu_c_tab = c(-60, -54, -50, -44, -40)
+mu_c_tab = c(-60, -55, -50, -45, -40)
 
 for(w in 1:length(w_vec)){
   w_v <- w_vec[w]

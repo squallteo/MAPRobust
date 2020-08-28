@@ -25,7 +25,7 @@ robust_sd = 88
 #current treatment data/parameters
 se_mu_t = 100
 n_t = 40
-effsize = -70
+effsize = -60
 
 #decision rule to claim trial success
 #pr(mu_t - mu_c < Qcut) > Pcut
@@ -50,7 +50,7 @@ n.chains = 3
 # for(s in 1:nsim){
 #   s_c <- rnorm(n_c, mean_c, common_sd)
 #   s_t <- rnorm(n_t, mean_t, common_sd)
-#   
+# 
 #   tt <- t.test(s_t, s_c, alternative = "less", conf.level = 0.975)
 #   rej[s] <- (tt$p.value < 0.025)
 # }
