@@ -4,11 +4,10 @@ library(R2jags)
 library(RBesT)
 library(ggplot2)
 library(doParallel)
-source("00-BhattacharyyaDistance.R")
 #source("02-BinarySimSpec0.R") #effect size 0
 source("02-BinarySimSpec1.R") #effect size 0.2
 
-nsim = 500
+nsim = 10000
 ncores = min(parallel::detectCores(), 40)
 cl = makeCluster(ncores)
 registerDoParallel(cl)
@@ -26,7 +25,7 @@ map_c_mcmc = gMAP(cbind(r, n - r) ~ 1 | study,
 map_c_hat = automixfit(map_c_mcmc)
 
 #non-informative beta prior for current treatment arm
-prior_t = mixbeta(c(1,a_t,b_t))
+prior_t = mixbeta(c(1,a_t,b_t), param = "ab")
 
 #################################################################
 #################################################################
@@ -37,7 +36,7 @@ t0 <- Sys.time()
 for(w in 1:length(w_vec)){
   w_v = w_vec[w]
   
-  #robustification, note RBesT uses the mean/sample size-1 parametrization, see help of "robustify" for details
+  #robustification, note that RBesT uses the mean/sample size-1 parametrization, see help of "robustify" for details
   rmap_c = robustify(map_c_hat, weight = w_v, mean = a_c/(a_c+b_c), n = a_c+b_c- 1)
   
   results_lst <- NULL
@@ -77,7 +76,6 @@ for(w in 1:length(w_vec)){
         #posterior difference
         post_diff_alt1 = post_t_alt1 - post_c_alt1
         decision_alt1 = (mean(post_diff_alt1 > Qcut) > Pcut)      
-        
         
         ###############
         #Alternative 2#
@@ -126,53 +124,24 @@ for(w in 1:length(w_vec)){
         post_diff_alt2 = post_t_alt2 - post_c_alt2
         decision_alt2 = (mean(post_diff_alt2 > Qcut) > Pcut)
         
+        ######################
+        #Genuine MAP and rMAP#
+        ######################
+        #get the posterior mixtures and random sample
+        postmix_map_c = postmix(map_c_hat,r = y_c, n = n_c); post_c_map = rmix(mix = postmix_map_c, n = length(post_diff_alt1))
+        postmix_rmap_c = postmix(rmap_c,r = y_c, n = n_c); post_c_rmap = rmix(mix = postmix_rmap_c, n = length(post_diff_alt1))
+        postmix_map_t = postmix(prior_t, r = y_t, n = n_t); post_t_map = rmix(mix = postmix_map_t, n = length(post_diff_alt1))
         
-        ###########################
-        #Alternative 3: full Bayes#
-        ###########################
-        # jags_data = with(dt,list(prec_mu_c = se_mu_c^-2, HNscale_c = HNscale_c, 
-        #                          y_c = y_c, n_c = n_c,
-        #                          y_h = dt$r, n_h = dt$n,
-        #                          y_t = y_t, n_t = n_t, prec_t = se_mu_t^-2, 
-        #                          w_v = w_v, robust_sd = robust_sd,
-        #                          beta_a = w_v, beta_b = 1 - w_v)
-        # )
-        # jags_obj = jags(model.file = "Model_BinaryHNMix_FB.bugs",
-        #                 data = jags_data,
-        #                 parameters.to.save = c("p_c","p_t"),
-        #                 n.chains = n.chains, n.burnin = 2000, n.iter = 10000,
-        #                 progress.bar = "none"
-        # )
-        # jags_auto = autojags(jags_obj, Rhat = 1.1, n.thin = 4, n.iter = 40000, n.update = 10, progress.bar = "none")
-        # tt = data.frame(jags_auto$BUGSoutput$sims.matrix)
-        # post_c_alt3 = tt$p_c
-        # post_t_alt3 = tt$p_t
-        # 
-        # #posterior difference
-        # post_diff_alt3 = post_t_alt3 - post_c_alt3
-        # decision_alt3 = (mean(post_diff_alt3 > Qcut) > Pcut)      
+        post_diff_map = post_t_map - post_c_map
+        decision_map = (mean(post_diff_map > Qcut) > Pcut)
         
-        post_c_alt3 = 1
-        decision_alt3 = 0
-        
-        
-        ##############
-        #Genuine rMAP#
-        ##############
-        #get the posterior mixtures
-        postmix_c = postmix(rmap_c,r = y_c, n = n_c)
-        postmix_t = postmix(prior_t, r = y_t, n = n_t)
-        
-        post_c_rmap = rmix(mix = postmix_c, n = length(post_diff_alt1))
-        post_t_rmap = rmix(mix = postmix_t, n = length(post_diff_alt1))
-        
-        post_diff_rmap = post_t_rmap - post_c_rmap
+        post_diff_rmap = post_t_map - post_c_rmap
         decision_rmap = (mean(post_diff_rmap > Qcut) > Pcut)
         
         #assemble the results
-        w_post <- tail(as.matrix(postmix_c)[1,],1)
-        decisions <- c(decision_rmap, decision_alt1, decision_alt2, decision_alt3)
-        median_est <- c(median(post_c_rmap), median(post_c_alt1), median(post_c_alt2), median(post_c_alt3))
+        w_post <- tail(as.matrix(postmix_rmap_c)[1,],1)
+        decisions <- c(decision_map, decision_rmap, decision_alt1, decision_alt2)
+        median_est <- c(median(post_c_map), median(post_c_rmap), median(post_c_alt1), median(post_c_alt2))
         
         c(decisions, median_est, w_post)
       }
