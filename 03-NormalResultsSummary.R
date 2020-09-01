@@ -1,6 +1,5 @@
 rm(list=ls())
 
-library(ggplot2)
 library(RBesT)
 library(tidyverse)
 source("02-NormalSimSpec0.R") #effect size 0

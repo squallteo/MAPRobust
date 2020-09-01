@@ -2,10 +2,9 @@ rm(list=ls())
 
 library(R2jags)
 library(RBesT)
-library(ggplot2)
 library(doParallel)
-#source("02-BinarySimSpec0.R") #effect size 0
-source("02-BinarySimSpec1.R") #effect size 0.2
+source("02-BinarySimSpec0.R") #effect size 0
+# source("02-BinarySimSpec1.R") #effect size 0.2
 
 nsim = 10000
 ncores = min(parallel::detectCores(), 40)
