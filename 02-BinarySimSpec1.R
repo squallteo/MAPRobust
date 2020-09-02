@@ -23,7 +23,7 @@ robust_sd = 2 #vague normal prior sd of logit p(c), alternatives only
 se_mu_t = 2 #sd of logit p(t), alternatives only
 a_t = 0.5; b_t = 0.5 #beta prior for p(t), rMAP only
 n_t = 40
-effsize = 0.2
+effsize = 0.3
 
 #decision rule to claim trial success
 #pr(mu_t - mu_c < Qcut) > Pcut
@@ -33,3 +33,23 @@ success_rule = decision2S(pc = Pcut, qc = Qcut, lower.tail = F, link = "identity
 
 #MCMC control parameters
 n.chains = 3
+
+#simulation to compute PoS for frequentist no borrowing
+#comment out in simulation
+# nsim = 10000
+# 
+# mean_c <- 0.25
+# mean_t <- mean_c + effsize
+# 
+# rej <- rep(NA, nsim)
+# 
+# for(s in 1:nsim){
+#   s_c <- rbinom(1, n_c, mean_c)
+#   s_t <- rbinom(1, n_t, mean_t)
+#   
+#   tt <- prop.test(c(s_t, s_c), c(n_t, n_c), alternative = "greater", conf.level = 0.95)
+#   rej[s] <- (tt$p.value < 0.05)
+# }
+# 
+# 
+# mean(rej)
