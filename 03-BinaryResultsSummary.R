@@ -3,7 +3,7 @@ rm(list=ls())
 library(RBesT)
 library(tidyverse)
 source("02-BinarySimSpec0.R") #effect size 0
-# source("02-BinarySimSpec1.R") #effect size -20
+# source("02-BinarySimSpec1.R") #effect size -30
 
 mu_c_tab = c(0.20, 0.22, 0.25, 0.28, 0.32)
 
@@ -79,5 +79,5 @@ for(w in 1:length(w_vec)){
 }
 
 
-# write.csv(outdt,"out.csv")
+write.csv(outdt,"out.csv")
 
