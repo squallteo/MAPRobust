@@ -6,7 +6,7 @@ yh = dt$y
 nh = dt$n
 
 #meta analysis of historical data
-# with(dt, meta::metamean(n = n, mean = y, sd = rep(sigma,length(study))))
+with(dt, meta::metamean(n = n, mean = y, sd = rep(sigma,length(study)), prediction = T))
 #point est is -50. Decide to consider true current mean from -60 to -40
 
 #current control data
