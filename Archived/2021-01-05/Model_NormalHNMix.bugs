@@ -1,0 +1,38 @@
+model{
+  #########
+  #control#
+  #########
+  #hyperparameters
+  mu_c ~ dnorm(0,prec_mu_c)
+  
+  #exchangeability
+  prec_tau_c <- HNscale_c^-2
+  tau_c ~ dnorm(0,prec_tau_c) I(0,)
+  prec_c <- tau_c^-2
+  
+  #current control
+  y_c ~ dnorm(theta_c,prec_yc)
+  
+  nb ~ dbern(w_v)
+  branch[1] ~ dnorm(mu_c, prec_c) #branch 1: borrowing
+  branch[2] ~ dnorm(robust_mean, robust_sd^-2) #branch 2: no borrowing
+  
+  if.branch <- equals(nb,1) + 1
+  theta_c <- branch[if.branch]
+  
+  
+  #historical controls
+  for(i in 1:length(yh))
+  {
+    yh[i] ~ dnorm(theta_h[i],prec_yh[i])
+    theta_h[i] ~ dnorm(mu_c,  prec_c)
+  }
+  
+  ###########
+  #treatment#
+  ###########
+  #current treatment
+  y_t ~ dnorm(mu_t,prec_yt)
+  mu_t ~ dnorm(0, prec_mu_t)
+  
+}
