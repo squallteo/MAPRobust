@@ -3,8 +3,8 @@ rm(list=ls())
 library(R2jags)
 library(RBesT)
 library(doParallel)
-source("02-NormalSimSpec0.R") #effect size 0
-# source("02-NormalSimSpec1.R") #effect size -60
+source("01-NormalSimSpec0.R") #effect size 0
+# source("01-NormalSimSpec1.R") #effect size -60
 
 nsim = 10000
 ncores = min(parallel::detectCores(), 40)

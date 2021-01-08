@@ -2,8 +2,8 @@ rm(list=ls())
 
 library(RBesT)
 library(tidyverse)
-source("02-NormalSimSpec0.R") #effect size 0
-# source("02-NormalSimSpec1.R") #effect size -20
+source("01-NormalSimSpec0.R") #effect size 0
+# source("01-NormalSimSpec1.R") #effect size -20
 
 mu_c_tab = c(-60, -55, -50, -45, -40)
 

@@ -5,7 +5,7 @@ library(R2jags)
 library(RBesT)
 library(ggplot2)
 
-source("02-NormalSimSpec1.R")
+source("01-NormalSimSpec1.R")
 mu_c <- -45
 
 #derive the rMAP as it doesn't rely on current data
@@ -135,7 +135,7 @@ posteriordt <- rbind(
 )
 
 posteriordt %>% 
-  ggplot(aes(x = Sample, fill = Method)) + geom_density(alpha = 0.4) + labs(fill = "Method") + 
+  ggplot(aes(x = Sample, linetype = Method, color = Method)) + geom_density(alpha = 0.4, size = 1.5) + labs(fill = "Method") + ylab("Kernel Density Estimate") +
   scale_x_continuous(breaks = seq(-90,-10,10), name = "Current Control Mean mu_C") +
   theme(axis.title = element_text(face="bold",size=20),
         axis.text = element_text(size=16),

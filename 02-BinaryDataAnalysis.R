@@ -129,7 +129,7 @@ posteriordt <- rbind(
 )
 
 posteriordt %>% 
-  ggplot(aes(x = Sample, fill = Method)) + geom_density(alpha = 0.4) + labs(fill = "Method") +
+  ggplot(aes(x = Sample, linetype = Method, color = Method)) + geom_density(alpha = 0.4, size = 1.5) + labs(fill = "Method") + ylab("Kernel Density Estimate") +
   scale_x_continuous(breaks = seq(0, 1, 0.1), name = "Current Control Rate p_C") +
   theme(axis.title = element_text(face="bold",size=20),
         axis.text = element_text(size=16),
