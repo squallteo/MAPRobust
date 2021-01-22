@@ -6,12 +6,12 @@ Zhang, H., Chiang, A., Branson, M., **On the Implementation of Robust Meta-Analy
 
 1. Files starting with "01" are for the normal endpoint, whereas those starting with "02" are for the binary endpoint.  
 
-2. The files "XXXSimRun.R" run the simulations. 
+2. The files "XXXSimRun.R" are the main files to run the simulations. 
 
 3. "XXXSimSpec0.R" contains the historical data and simulation specs corresponding to the null scenario (no treatment effect), whereas "XXXSimSpec1.R" to the alternative scenario. 
 
-4. The simulation stores a series of R workspace files. The can be summarized by "XXXResultsSummary.R" files. 
+4. The simulation stores a series of R workspace files. Example files are in "Results" directory. They can be summarized by "XXXResultsSummary.R" files. 
 
 5. "XXXDataAnalysis.R" files perform data analysis of one set of simulated current trial data. It also generates the plots in the manuscript. 
 
-6. The .bugs files are model specifications in BUGS language. They must be stored locally and called by the file path. **They cannot be sourced in R** because they specify the half-normal priors using syntax that R doesn't recognize. 
+6. The .bugs files are model specifications written in BUGS language. The file path must be specified in the *model.file* argument of *R2jags::jags*. They cannot be sourced in R because the half-normal priors are specified using syntax that R doesn't recognize. 
