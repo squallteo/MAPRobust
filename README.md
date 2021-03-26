@@ -14,4 +14,4 @@ Zhang, H., Chiang, A., Branson, M., **On the Implementation of Robust Meta-Analy
 
 5. "XXXDataAnalysis.R" files perform data analysis of one set of simulated current trial data. It also generates the plots in the manuscript. 
 
-6. The .bugs files are model specifications written in BUGS language. The file path must be specified in the *model.file* argument of *R2jags::jags*. They cannot be sourced in R because the half-normal priors are specified using syntax that R doesn't recognize. 
+6. The .bugs files are model specifications written in BUGS language. 
